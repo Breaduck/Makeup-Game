@@ -2,7 +2,7 @@
   "name": "princess-playlist",
   "version": "1.0.0",
   "scripts": {
-    "build": "echo 'No build required - static files'"
+    "build": "node build.js"
   },
   "dependencies": {
     "isomorphic-git": "^1.37.5"
