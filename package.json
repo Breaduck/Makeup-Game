@@ -1,4 +1,9 @@
 {
+  "name": "princess-playlist",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'No build required - static files'"
+  },
   "dependencies": {
     "isomorphic-git": "^1.37.5"
   }
