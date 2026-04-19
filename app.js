@@ -238,48 +238,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedProducts.lip) drawFacePart(selectedProducts.lip.color || '#FF4D4D', 'lip', targetCtx, targetCanvas);
     }
 
-    const loadedImages = {};
     function drawFacePart(color, part, targetCtx, targetCanvas) {
         const config = charConfigs[currentTone][part];
-        const product = selectedProducts[part];
+        targetCtx.save();
+        targetCtx.fillStyle = color;
 
-        if (product?.image) {
-            // Draw image layer
-            if (!loadedImages[product.image]) {
-                loadedImages[product.image] = new Image();
-                loadedImages[product.image].src = product.image;
-            }
-            const img = loadedImages[product.image];
-            if (img.complete) {
-                targetCtx.save();
-                targetCtx.globalAlpha = 0.8;
-                if (part === 'eye') {
-                    const w = config.w * 2.5, h = config.h * 2.5;
-                    targetCtx.drawImage(img, targetCanvas.width * config.lx - w, targetCanvas.height * config.y - h, w * 2, h * 2);
-                    targetCtx.drawImage(img, targetCanvas.width * config.rx - w, targetCanvas.height * config.y - h, w * 2, h * 2);
-                } else {
-                    const w = config.w * 2, h = config.h * 2;
-                    targetCtx.drawImage(img, targetCanvas.width * config.x - w, targetCanvas.height * config.y - h, w * 2, h * 2);
-                }
-                targetCtx.restore();
-            }
-        } else {
-            // Fallback: color ellipse
-            targetCtx.save();
-            targetCtx.fillStyle = color + '99';
-            if (part === 'lip' || part === 'face') {
-                targetCtx.beginPath();
-                targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
-                targetCtx.fill();
-            } else if (part === 'cheek' || part === 'eye') {
-                targetCtx.filter = 'blur(12px)';
-                targetCtx.beginPath();
-                targetCtx.ellipse(targetCanvas.width * config.lx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
-                targetCtx.ellipse(targetCanvas.width * config.rx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
-                targetCtx.fill();
-            }
-            targetCtx.restore();
+        if (part === 'lip') {
+            targetCtx.globalAlpha = 0.7;
+            targetCtx.filter = 'blur(1px)';
+            targetCtx.beginPath();
+            targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+        } else if (part === 'eye') {
+            targetCtx.globalAlpha = 0.6;
+            targetCtx.filter = 'blur(4px)';
+            targetCtx.beginPath();
+            targetCtx.ellipse(targetCanvas.width * config.lx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.ellipse(targetCanvas.width * config.rx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+        } else if (part === 'cheek') {
+            targetCtx.globalAlpha = 0.5;
+            targetCtx.filter = 'blur(15px)';
+            targetCtx.beginPath();
+            targetCtx.ellipse(targetCanvas.width * config.lx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.ellipse(targetCanvas.width * config.rx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+        } else if (part === 'face') {
+            targetCtx.globalAlpha = 0.2;
+            targetCtx.filter = 'blur(25px)';
+            targetCtx.beginPath();
+            targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
         }
+        targetCtx.restore();
     }
 
     // AI Styling
