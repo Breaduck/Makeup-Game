@@ -33,14 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Configuration
     const charConfigs = {
         warm: {
-            lip: { x: 0.50, y: 0.53, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.52, w: 28, h: 18 },
-            eye: { lx: 0.38, rx: 0.62, y: 0.40, w: 20, h: 10 }
+            face: { x: 0.50, y: 0.50, w: 80, h: 100 },
+            lip: { x: 0.50, y: 0.68, w: 14, h: 7 },
+            cheek: { lx: 0.38, rx: 0.62, y: 0.58, w: 28, h: 18 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.42, w: 20, h: 10 }
         },
         cool: {
-            lip: { x: 0.49, y: 0.51, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.50, w: 28, h: 18 },
-            eye: { lx: 0.38, rx: 0.62, y: 0.38, w: 20, h: 10 }
+            face: { x: 0.50, y: 0.50, w: 80, h: 100 },
+            lip: { x: 0.49, y: 0.66, w: 14, h: 7 },
+            cheek: { lx: 0.38, rx: 0.62, y: 0.56, w: 28, h: 18 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.40, w: 20, h: 10 }
         }
     };
 
@@ -230,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function redrawAllMakeup(targetCtx = ctx, targetCanvas = canvas) {
         if (!targetCanvas.width) return;
         targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+        if (selectedProducts.face) drawFacePart(selectedProducts.face.color || '#FFE4E1', 'face', targetCtx, targetCanvas);
         if (selectedProducts.eye) drawFacePart(selectedProducts.eye.color || '#D4A5A5', 'eye', targetCtx, targetCanvas);
         if (selectedProducts.cheek) drawFacePart(selectedProducts.cheek.color || '#FFB7C5', 'cheek', targetCtx, targetCanvas);
         if (selectedProducts.lip) drawFacePart(selectedProducts.lip.color || '#FF4D4D', 'lip', targetCtx, targetCanvas);
@@ -239,7 +242,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = charConfigs[currentTone][part];
         targetCtx.save();
         targetCtx.fillStyle = color + '99';
-        if (part === 'lip') {
+        if (part === 'face') {
+            // Face base/highlighter - subtle glow on entire face
+            targetCtx.filter = 'blur(20px)';
+            targetCtx.fillStyle = color + '33';
+            targetCtx.beginPath();
+            targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+        } else if (part === 'lip') {
             targetCtx.beginPath();
             targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
             targetCtx.fill();
@@ -307,25 +317,43 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInput = document.getElementById('princess-name-input');
         const name = nameInput.value || '에뛰드 프린세스';
         const finishImg = document.getElementById('finish-char-img');
-        
+
         if (!finishImg) return;
 
         const thumbCanvas = document.createElement('canvas');
         thumbCanvas.width = 240;
         thumbCanvas.height = 340;
         const tCtx = thumbCanvas.getContext('2d');
-        
-        tCtx.drawImage(finishImg, 0, 0, 240, 340);
-        redrawAllMakeup(tCtx, thumbCanvas);
-        
-        try {
-            let thumbUrl = "";
+
+        // Wait for image to load before drawing
+        const processImage = () => {
+            tCtx.drawImage(finishImg, 0, 0, 240, 340);
+            redrawAllMakeup(tCtx, thumbCanvas);
+
             try {
-                thumbUrl = thumbCanvas.toDataURL('image/png');
+                let thumbUrl = "";
+                try {
+                    thumbUrl = thumbCanvas.toDataURL('image/png');
+                } catch (e) {
+                    console.warn("Canvas Tainting detected. Using fallback placeholder.");
+                    thumbUrl = "logo_circle.png"; // Fallback thumbnail
+                }
+                completeSave(thumbUrl, name);
             } catch (e) {
-                console.warn("Canvas Tainting detected. Using fallback placeholder.");
-                thumbUrl = "logo_circle.png"; // Fallback thumbnail
+                console.error("Critical save error", e);
+                confirmSaveBtn.textContent = '저장 실패';
             }
+        };
+
+        if (finishImg.complete) {
+            processImage();
+        } else {
+            finishImg.onload = processImage;
+        }
+    }
+
+    function completeSave(thumbUrl, name) {
+        try {
             
             const princessData = {
                 id: Date.now(),
@@ -334,25 +362,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumb: thumbUrl,
                 products: JSON.parse(JSON.stringify(selectedProducts))
             };
-            
+
             savedPrincesses.push(princessData);
             localStorage.setItem('savedPrincesses', JSON.stringify(savedPrincesses));
-            
+
             // Success Feedback
             confirmSaveBtn.textContent = '저장 완료 ✓';
             confirmSaveBtn.style.background = '#4CAF50';
             postSaveActions.classList.remove('hidden');
-            
+
             // Show Invitation (Triggered even if canvas tainting happened)
             const invitationScreen = document.getElementById('invitation-screen');
             invitationScreen.classList.remove('hidden');
             document.getElementById('close-invitation').onclick = () => {
                 invitationScreen.classList.add('hidden');
             };
-            
+
             renderGallery();
         } catch (e) {
-            console.error("Critical save error", e);
+            console.error("Save completion error", e);
             confirmSaveBtn.textContent = '저장 실패';
         }
     }
