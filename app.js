@@ -34,11 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const charConfigs = {
         warm: {
             lip: { x: 0.50, y: 0.53, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.52, w: 28, h: 18 }
+            cheek: { lx: 0.38, rx: 0.62, y: 0.52, w: 28, h: 18 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.40, w: 20, h: 10 }
         },
         cool: {
             lip: { x: 0.49, y: 0.51, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.50, w: 28, h: 18 }
+            cheek: { lx: 0.38, rx: 0.62, y: 0.50, w: 28, h: 18 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.38, w: 20, h: 10 }
         }
     };
 
@@ -148,15 +150,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 products = [{ id: 101, image: 'eyeliner1.png', color: '#000000' }, { id: 102, image: 'eyeliner2.png', color: '#4B3621' }];
             } else if (currentSubCategory === '마스카라') {
                 products = [
-                    { id: 201, image: 'mascara1.png' }, { id: 202, image: 'mascara2.png' },
-                    { id: 203, image: 'mascara3.png' }, { id: 204, image: 'mascara4.png' },
-                    { id: 205, image: 'mascara5.png' }
+                    { id: 201, image: 'mascara1.png', color: '#000000' },
+                    { id: 202, image: 'mascara2.png', color: '#2C1810' },
+                    { id: 203, image: 'mascara3.png', color: '#4B3621' },
+                    { id: 204, image: 'mascara4.png', color: '#663300' },
+                    { id: 205, image: 'mascara5.png', color: '#8B4513' }
                 ];
             } else {
                 products = [
-                    { id: 1, image: 'palette_eye1.png' }, { id: 2, image: 'palette_eye2.png' },
-                    { id: 3, image: 'palette_eye3.png' }, { id: 4, image: 'palette_eye4.png' },
-                    { id: 5, image: 'palette_eye5.png' }
+                    { id: 1, image: 'palette_eye1.png', color: '#E6B8B8' },
+                    { id: 2, image: 'palette_eye2.png', color: '#D4A5A5' },
+                    { id: 3, image: 'palette_eye3.png', color: '#C99999' },
+                    { id: 4, image: 'palette_eye4.png', color: '#B88888' },
+                    { id: 5, image: 'palette_eye5.png', color: '#A87777' }
                 ];
             }
         } else if (currentCategory === 'lip') {
@@ -224,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function redrawAllMakeup(targetCtx = ctx, targetCanvas = canvas) {
         if (!targetCanvas.width) return;
         targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+        if (selectedProducts.eye) drawFacePart(selectedProducts.eye.color || '#D4A5A5', 'eye', targetCtx, targetCanvas);
         if (selectedProducts.cheek) drawFacePart(selectedProducts.cheek.color || '#FFB7C5', 'cheek', targetCtx, targetCanvas);
         if (selectedProducts.lip) drawFacePart(selectedProducts.lip.color || '#FF4D4D', 'lip', targetCtx, targetCanvas);
     }
@@ -240,6 +247,15 @@ document.addEventListener('DOMContentLoaded', () => {
             targetCtx.filter = 'blur(12px)';
             targetCtx.beginPath();
             targetCtx.ellipse(targetCanvas.width * config.lx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.ellipse(targetCanvas.width * config.rx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+        } else if (part === 'eye') {
+            targetCtx.filter = 'blur(6px)';
+            targetCtx.fillStyle = color + 'AA';
+            targetCtx.beginPath();
+            // Left eye shadow
+            targetCtx.ellipse(targetCanvas.width * config.lx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+            // Right eye shadow
             targetCtx.ellipse(targetCanvas.width * config.rx, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
             targetCtx.fill();
         }
