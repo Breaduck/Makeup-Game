@@ -34,15 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const charConfigs = {
         warm: {
             face: { x: 0.50, y: 0.50, w: 80, h: 100 },
-            lip: { x: 0.50, y: 0.68, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.58, w: 28, h: 18 },
-            eye: { lx: 0.38, rx: 0.62, y: 0.42, w: 20, h: 10 }
+            lip: { x: 0.50, y: 0.60, w: 12, h: 6 },
+            cheek: { lx: 0.35, rx: 0.65, y: 0.52, w: 22, h: 16 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.37, w: 18, h: 12 }
         },
         cool: {
             face: { x: 0.50, y: 0.50, w: 80, h: 100 },
-            lip: { x: 0.49, y: 0.66, w: 14, h: 7 },
-            cheek: { lx: 0.38, rx: 0.62, y: 0.56, w: 28, h: 18 },
-            eye: { lx: 0.38, rx: 0.62, y: 0.40, w: 20, h: 10 }
+            lip: { x: 0.50, y: 0.58, w: 10, h: 5 },
+            cheek: { lx: 0.35, rx: 0.65, y: 0.50, w: 22, h: 16 },
+            eye: { lx: 0.38, rx: 0.62, y: 0.35, w: 18, h: 12 }
         }
     };
 
