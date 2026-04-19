@@ -1,0 +1,5 @@
+node_modules/
+auto-push.js
+git-setup.js
+git-sync.js
+.DS_Store
