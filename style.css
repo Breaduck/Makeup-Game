@@ -251,7 +251,9 @@ body {
 }
 
 .sidebar-tab.active + .sub-menu-list { display: flex; }
-.sub-menu-item { padding: 5px 0; color: var(--etude-pink-dark); font-weight: 700; text-align: center; }
+.sub-menu-item { padding: 5px 0; color: var(--etude-pink-dark); font-weight: 700; text-align: center; cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+.sub-menu-item:hover { opacity: 1; }
+.sub-menu-item.active { opacity: 1; text-decoration: underline; }
 
 /* Bottom Panel */
 .bottom-panel {
