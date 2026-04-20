@@ -6,3 +6,11 @@ git-sync.js
 
 # Build output
 dist/
+
+# Python development scripts
+*.py
+__pycache__/
+*.pyc
+
+# Generated mask files
+*_mask.png

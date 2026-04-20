@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Screens
+    const introScreen = document.getElementById('intro-screen');
+    const introVideo = document.getElementById('intro-video');
+    const skipIntroBtn = document.getElementById('skip-intro');
     const homeScreen = document.getElementById('home-screen');
     const galleryScreen = document.getElementById('gallery-screen');
     const finishScreen = document.getElementById('finish-screen');
@@ -52,6 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTone = 'warm';
     let selectedProducts = { face: null, eye: null, lip: null, cheek: null, hair: null };
     let savedPrincesses = JSON.parse(localStorage.getItem('savedPrincesses') || '[]');
+
+    // 입술 마스크 이미지 로드
+    const lipMasks = {
+        warm: new Image(),
+        cool: new Image()
+    };
+    lipMasks.warm.src = 'warm_lip_layer.png';
+    lipMasks.cool.src = 'cool_lip_layer.png';
 
     // --- Navigation ---
 
@@ -246,11 +257,36 @@ document.addEventListener('DOMContentLoaded', () => {
         targetCtx.fillStyle = color;
 
         if (part === 'lip') {
-            targetCtx.globalAlpha = 0.7;
-            targetCtx.filter = 'blur(1px)';
-            targetCtx.beginPath();
-            targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
-            targetCtx.fill();
+            // 입술 마스크 레이어 사용
+            const lipMask = lipMasks[currentTone];
+            if (lipMask.complete && lipMask.naturalWidth > 0) {
+                // 임시 캔버스에서 색상 블렌딩
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = targetCanvas.width;
+                tempCanvas.height = targetCanvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // 원본 입술 마스크 그리기 (스케일 맞춤)
+                const scaleX = targetCanvas.width / lipMask.naturalWidth;
+                const scaleY = targetCanvas.height / lipMask.naturalHeight;
+                tempCtx.drawImage(lipMask, 0, 0, targetCanvas.width, targetCanvas.height);
+
+                // 색상 오버레이 적용 (multiply 블렌드)
+                tempCtx.globalCompositeOperation = 'source-atop';
+                tempCtx.fillStyle = color;
+                tempCtx.globalAlpha = 0.7;
+                tempCtx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+                // 결과를 메인 캔버스에 그리기
+                targetCtx.drawImage(tempCanvas, 0, 0);
+            } else {
+                // 마스크 로딩 전 폴백
+                targetCtx.globalAlpha = 0.7;
+                targetCtx.filter = 'blur(1px)';
+                targetCtx.beginPath();
+                targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
+                targetCtx.fill();
+            }
         } else if (part === 'eye') {
             targetCtx.globalAlpha = 0.6;
             targetCtx.filter = 'blur(4px)';
@@ -482,6 +518,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('resize', resizeCanvas);
-    homeScreen.classList.remove('hidden');
+
+    // --- Intro Video Logic ---
+    function hideIntro() {
+        introScreen.classList.add('hidden');
+        homeScreen.classList.remove('hidden');
+    }
+
+    // Skip button
+    if (skipIntroBtn) {
+        skipIntroBtn.onclick = hideIntro;
+    }
+
+    // Auto-hide when video ends
+    if (introVideo) {
+        introVideo.onended = hideIntro;
+        // If video fails to load, show home screen
+        introVideo.onerror = hideIntro;
+    }
+
     renderGallery(); // Initial load
 });
