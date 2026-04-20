@@ -236,7 +236,7 @@ body {
 }
 
 .main-character-img[src*="cool"] {
-    transform: scale(0.98) translateY(5%);
+    transform: scale(1.03) translateY(5%);
 }
 
 #makeup-canvas {
