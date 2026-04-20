@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         cool: {
             face: { x: 0.50, y: 0.50, w: 80, h: 100 },
-            lip: { x: 0.50, y: 0.48, w: 10, h: 5 },
+            lip: { x: 0.40, y: 0.48, w: 10, h: 5 },
             cheek: { lx: 0.35, rx: 0.65, y: 0.50, w: 22, h: 16 },
             eye: { lx: 0.38, rx: 0.62, y: 0.35, w: 18, h: 12 }
         }
