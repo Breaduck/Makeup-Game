@@ -266,24 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
         targetCtx.save();
         targetCtx.fillStyle = color;
 
-        if (part === 'lip') {
-            console.log('LIP selected:', product);
-            console.log('lipLayer:', product.lipLayer);
-            console.log('cache:', lipLayerCache);
-
-            if (product.lipLayer) {
-                const lipImg = lipLayerCache[product.lipLayer];
-                console.log('lipImg:', lipImg, 'complete:', lipImg?.complete, 'width:', lipImg?.naturalWidth);
-
-                if (lipImg && lipImg.complete && lipImg.naturalWidth > 0) {
-                    console.log('Drawing lip image');
-                    targetCtx.drawImage(lipImg, 0, 0, targetCanvas.width, targetCanvas.height);
-                } else if (lipImg) {
-                    console.log('Image not loaded, setting onload');
-                    lipImg.onload = () => redrawAllMakeup();
-                }
-            } else {
-                console.log('No lipLayer property');
+        if (part === 'lip' && product.lipLayer) {
+            const lipImg = lipLayerCache[product.lipLayer];
+            if (lipImg && lipImg.complete && lipImg.naturalWidth > 0) {
+                // 원본 비율 유지하며 그리기
+                targetCtx.drawImage(lipImg, 0, 0, targetCanvas.width, targetCanvas.height);
+            } else if (lipImg) {
+                lipImg.onload = () => redrawAllMakeup();
             }
         } else if (part === 'eye') {
             targetCtx.globalAlpha = 0.6;
