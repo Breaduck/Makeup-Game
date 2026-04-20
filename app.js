@@ -37,13 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const charConfigs = {
         warm: {
             face: { x: 0.50, y: 0.50, w: 80, h: 100 },
-            lip: { x: 0.50, y: 0.53, w: 12, h: 6 },
+            lip: { x: 0.50, y: 0.50, w: 12, h: 6 },
             cheek: { lx: 0.35, rx: 0.65, y: 0.52, w: 22, h: 16 },
             eye: { lx: 0.38, rx: 0.62, y: 0.37, w: 18, h: 12 }
         },
         cool: {
             face: { x: 0.50, y: 0.50, w: 80, h: 100 },
-            lip: { x: 0.50, y: 0.51, w: 10, h: 5 },
+            lip: { x: 0.50, y: 0.48, w: 10, h: 5 },
             cheek: { lx: 0.35, rx: 0.65, y: 0.50, w: 22, h: 16 },
             eye: { lx: 0.38, rx: 0.62, y: 0.35, w: 18, h: 12 }
         }
