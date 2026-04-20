@@ -183,14 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentCategory === 'lip') {
             if (currentSubCategory === '립밤') {
                 products = [
-                    { id: 301, image: 'lipbalm1.png', color: '#FCE4D6' },
-                    { id: 302, image: 'lipbalm2.png', color: '#FCE4D6' }
+                    { id: 301, image: 'lipbalm1.png', color: '#FCE4D6', lipLayer: 'warm_lip_nude.png' },
+                    { id: 302, image: 'lipbalm2.png', color: '#FCE4D6', lipLayer: 'warm_lip_nude.png' }
                 ];
             } else {
                 products = [
-                    { id: 1, color: '#FF4D4D', name: '레드 틴트' }, 
-                    { id: 2, color: '#FF8EAA', name: '핑크 틴트' }, 
-                    { id: 3, color: '#E63946', name: '레드 립스틱' }
+                    { id: 1, color: '#FF4D4D', name: '레드 틴트', lipLayer: 'warm_lip_red.png' },
+                    { id: 2, color: '#FF8EAA', name: '핑크 틴트', lipLayer: 'warm_lip_pink.png' },
+                    { id: 3, color: '#E63946', name: '레드 립스틱', lipLayer: 'warm_lip_lipstick.png' }
                 ];
             }
         } else if (currentCategory === 'cheek') {
@@ -245,47 +245,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function redrawAllMakeup(targetCtx = ctx, targetCanvas = canvas) {
         if (!targetCanvas.width) return;
         targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
-        if (selectedProducts.face) drawFacePart(selectedProducts.face.color || '#FFE4E1', 'face', targetCtx, targetCanvas);
-        if (selectedProducts.eye) drawFacePart(selectedProducts.eye.color || '#D4A5A5', 'eye', targetCtx, targetCanvas);
-        if (selectedProducts.cheek) drawFacePart(selectedProducts.cheek.color || '#FFB7C5', 'cheek', targetCtx, targetCanvas);
-        if (selectedProducts.lip) drawFacePart(selectedProducts.lip.color || '#FF4D4D', 'lip', targetCtx, targetCanvas);
+        if (selectedProducts.face) drawFacePart(selectedProducts.face, 'face', targetCtx, targetCanvas);
+        if (selectedProducts.eye) drawFacePart(selectedProducts.eye, 'eye', targetCtx, targetCanvas);
+        if (selectedProducts.cheek) drawFacePart(selectedProducts.cheek, 'cheek', targetCtx, targetCanvas);
+        if (selectedProducts.lip) drawFacePart(selectedProducts.lip, 'lip', targetCtx, targetCanvas);
     }
 
-    function drawFacePart(color, part, targetCtx, targetCanvas) {
+    // 입술 레이어 이미지 캐시
+    const lipLayerCache = {};
+
+    function drawFacePart(product, part, targetCtx, targetCanvas) {
         const config = charConfigs[currentTone][part];
+        const color = product.color || '#FF4D4D';
         targetCtx.save();
         targetCtx.fillStyle = color;
 
-        if (part === 'lip') {
-            // 입술 마스크 레이어 사용
-            const lipMask = lipMasks[currentTone];
-            if (lipMask.complete && lipMask.naturalWidth > 0) {
-                // 임시 캔버스에서 색상 블렌딩
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = targetCanvas.width;
-                tempCanvas.height = targetCanvas.height;
-                const tempCtx = tempCanvas.getContext('2d');
+        if (part === 'lip' && product.lipLayer) {
+            // 색상별 입술 레이어 이미지 사용
+            let lipImg = lipLayerCache[product.lipLayer];
+            if (!lipImg) {
+                lipImg = new Image();
+                lipImg.src = product.lipLayer;
+                lipLayerCache[product.lipLayer] = lipImg;
+            }
 
-                // 원본 입술 마스크 그리기 (스케일 맞춤)
-                const scaleX = targetCanvas.width / lipMask.naturalWidth;
-                const scaleY = targetCanvas.height / lipMask.naturalHeight;
-                tempCtx.drawImage(lipMask, 0, 0, targetCanvas.width, targetCanvas.height);
-
-                // 색상 오버레이 적용 (multiply 블렌드)
-                tempCtx.globalCompositeOperation = 'source-atop';
-                tempCtx.fillStyle = color;
-                tempCtx.globalAlpha = 0.7;
-                tempCtx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-
-                // 결과를 메인 캔버스에 그리기
-                targetCtx.drawImage(tempCanvas, 0, 0);
+            if (lipImg.complete && lipImg.naturalWidth > 0) {
+                targetCtx.drawImage(lipImg, 0, 0, targetCanvas.width, targetCanvas.height);
             } else {
-                // 마스크 로딩 전 폴백
-                targetCtx.globalAlpha = 0.7;
-                targetCtx.filter = 'blur(1px)';
-                targetCtx.beginPath();
-                targetCtx.ellipse(targetCanvas.width * config.x, targetCanvas.height * config.y, config.w, config.h, 0, 0, Math.PI * 2);
-                targetCtx.fill();
+                // 이미지 로딩 중 - 로드 완료 후 다시 그리기
+                lipImg.onload = () => redrawAllMakeup(targetCtx, targetCanvas);
             }
         } else if (part === 'eye') {
             targetCtx.globalAlpha = 0.6;
