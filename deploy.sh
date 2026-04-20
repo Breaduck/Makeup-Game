@@ -25,7 +25,7 @@ echo ""
 
 # Push to GitHub
 echo "[4/4] Pushing to GitHub..."
-git push origin master
+git push origin main
 echo ""
 
 echo "================================"
