@@ -251,8 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedProducts.lip) drawFacePart(selectedProducts.lip, 'lip', targetCtx, targetCanvas);
     }
 
-    // 입술 레이어 이미지 캐시
+    // 입술 레이어 이미지 캐시 및 미리 로드
     const lipLayerCache = {};
+    const lipLayers = ['warm_lip_red.png', 'warm_lip_pink.png', 'warm_lip_lipstick.png', 'warm_lip_coral.png', 'warm_lip_nude.png'];
+    lipLayers.forEach(src => {
+        const img = new Image();
+        img.src = src;
+        lipLayerCache[src] = img;
+    });
 
     function drawFacePart(product, part, targetCtx, targetCanvas) {
         const config = charConfigs[currentTone][part];
@@ -261,19 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
         targetCtx.fillStyle = color;
 
         if (part === 'lip' && product.lipLayer) {
-            // 색상별 입술 레이어 이미지 사용
-            let lipImg = lipLayerCache[product.lipLayer];
-            if (!lipImg) {
-                lipImg = new Image();
-                lipImg.src = product.lipLayer;
-                lipLayerCache[product.lipLayer] = lipImg;
-            }
-
-            if (lipImg.complete && lipImg.naturalWidth > 0) {
+            const lipImg = lipLayerCache[product.lipLayer];
+            if (lipImg && lipImg.complete && lipImg.naturalWidth > 0) {
                 targetCtx.drawImage(lipImg, 0, 0, targetCanvas.width, targetCanvas.height);
-            } else {
-                // 이미지 로딩 중 - 로드 완료 후 다시 그리기
-                lipImg.onload = () => redrawAllMakeup(targetCtx, targetCanvas);
+            } else if (lipImg) {
+                lipImg.onload = () => redrawAllMakeup();
             }
         } else if (part === 'eye') {
             targetCtx.globalAlpha = 0.6;
